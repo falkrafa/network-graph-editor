@@ -123,11 +123,9 @@ def shortest_path():
 @app.route('/upload_batch-graph', methods=['POST'])
 def upload_batch_graph():
     data = request.json
-    print(data)
     for vertex in data['nodes']:
         graph.add_node(vertex['id']) 
     for edge in data['edges']:
-        print(edge['source'], edge['target'], edge['weight'])
         graph.add_edge(edge['source'], edge['target'], weight=edge['weight'])
     return jsonify({'message': 'Graph uploaded successfully'}), 200
 

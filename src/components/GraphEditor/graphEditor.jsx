@@ -27,7 +27,7 @@ const GraphEditor = ({
   setModalOpen,
   batchInput,
   setBatchInput,
-  handleBatchSubmit,
+  onBatchSubmit,
 }) => (
   <div>
     <button onClick={() => onSetGraphType(true)}>Set Directed Graph</button>
@@ -84,10 +84,10 @@ const GraphEditor = ({
     >
       <textarea value={batchInput} onChange={e => setBatchInput(e.target.value)} />
       <label>
-        <input type='checkbox' checked={graphInfos.isDirected} onChange={() => setGraphInfos({ ...graphInfos, isDirected: !graphInfos.isDirected })} />
+      <input type='checkbox' checked={graphInfos.isDirected} onChange={() => onSetGraphType(!graphInfos.isDirected)} />
         Directed Graph
       </label>
-      <button onClick={handleBatchSubmit}>Submit</button>
+      <button onClick={onBatchSubmit}>Submit</button>
     </Modal>
     <p>Order of Graph (Number of Vertices): {graphInfos.order}</p>
     <p>Size of Graph (Number of Edges): {graphInfos.size}</p>

@@ -100,7 +100,7 @@ const GraphEditorContainer = () => {
         id: `${edge.u}-${edge.v}-${edge.key}`,
         source: edge.u,
         target: edge.v,
-        label: edge.weight ? `Weight: ${edge.weight}` : 'Unweighted'
+        label: edge.weight ? `${edge.weight}` : '0'
       }
     })));
     setElements(formattedElements);
@@ -197,23 +197,45 @@ const GraphEditorContainer = () => {
     }
   };
 
-  const handleBatchSubmit = async () => {
+  const onBatchSubmit = async () => {
     onClearGraph();
+    const lines = batchInput.split('\n');
+
+    const nodes = [];
+    const edges = [];
+
+    lines.forEach(line => {
+
+      const values = line.trim().split(/\s+/);
+      console.log(values)
+
+      if (values.length === 3) {
+        edges.push({ source: values[0], target: values[1], weight: parseInt(values[2]) });
+      }
+      
+      else if (values.length === 2) {
+        edges.push({ source: values[0], target: values[1], weight: 0 });
+      }
+      else{
+        nodes.push({ id: values[0] });
+      }
+    });
+
+    const payload = { nodes, edges };
     try {
-      const response = await axios.post('http://localhost:5000/upload_batch-graph', batchInput, {
+      await axios.post('http://localhost:5000/upload_batch-graph', payload, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
-      alert(response.data.message);
-      fetchGraphData();
-    }
-    catch (error) {
+      alert('Batch input processed successfully!');
+      fetchGraphData(); 
+    } catch (error) {
       console.error('Failed to process batch input:', error);
       alert('Error processing batch input.');
     }
   };
-
+  
   return (
     <GraphEditor
       elements={elements}
@@ -239,7 +261,7 @@ const GraphEditorContainer = () => {
       modalOpen={modalOpen}
       batchInput={batchInput}
       setBatchInput={setBatchInput}
-      handleBatchSubmit={handleBatchSubmit}
+      onBatchSubmit={onBatchSubmit}
       cyRef={cyRef}
       cyStyles={cyStyles}
     />
