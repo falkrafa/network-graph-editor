@@ -6,7 +6,7 @@ from networkx.algorithms.shortest_paths.weighted import dijkstra_path, dijkstra_
 app = Flask(__name__)
 CORS(app)
 
-graph = nx.Graph() 
+graph = nx.MultiGraph() 
 
 @app.route('/set_graph_type', methods=['POST'])
 def set_graph_type():

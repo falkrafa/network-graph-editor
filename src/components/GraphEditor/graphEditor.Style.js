@@ -36,47 +36,13 @@ const cytoscapeStyle = (isDirected) => [
     },
 ];
 
-const globalStyle = {
-    container: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        backgroundColor: '#f4a261',
-    },
-    title: {
-        fontSize: '2rem',
-        fontWeight: 'bold',
-        color: '#e76f51',
-    },
-    button: {
-        padding: '0.5rem 1rem',
-        margin: '0.5rem',
-        fontSize: '1rem',
-        fontWeight: 'bold',
-        color: '#ffffff',
-        backgroundColor: '#e76f51',
-        border: 'none',
-        borderRadius: '5px',
-        cursor: 'pointer',
-    },
-    input: {
-        padding: '0.5rem',
-        margin: '0.5rem',
-        fontSize: '1rem',
-        border: '1px solid #e76f51',
-        borderRadius: '5px',
-    },
-    label: {
-        fontSize: '1.2rem',
-        fontWeight: 'bold',
-        color: '#264653',
-    },
-    error: {
-        fontSize: '1rem',
-        color: '#e63946',
-    },
-};
+// const globalStyle = [
+//     {
+//         container: {
+//             width: '5%',
+//             height: '100%',
+//         },
+//     }
+// ];
 
-export const graphEditorStyle = { cytoscapeStyle, globalStyle };
+export const graphEditorStyle = { cytoscapeStyle};

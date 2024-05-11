@@ -12,8 +12,7 @@ const GraphEditorContainer = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [batchInput, setBatchInput] = useState('');
   const cyRef = useRef(null);
-  const editorStyle = { cytoscapeStyle: graphEditorStyle.cytoscapeStyle(graphInfos.isDirected), graphEditorStyle: graphEditorStyle.globalStyle };
-
+  const editorStyle = { cytoscapeStyle: graphEditorStyle.cytoscapeStyle(graphInfos.isDirected) };
   useEffect(() => {
     const cy = cyRef.current;
     if (!cy) return;
@@ -54,8 +53,6 @@ const GraphEditorContainer = () => {
       } catch (error) {
         console.error('Failed to add vertex:', error);
         alert('Error adding vertex.');
-      } finally {
-        setModes({ ...modes, isAddMode: false });
       }
     };
 
@@ -239,6 +236,7 @@ const GraphEditorContainer = () => {
       });
       alert('Batch input processed successfully!');
       fetchGraphData();
+      setModalOpen(false);
     } catch (error) {
       console.error('Failed to process batch input:', error);
       alert('Error processing batch input.');
