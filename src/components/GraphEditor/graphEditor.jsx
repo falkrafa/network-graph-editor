@@ -2,16 +2,14 @@ import CytoscapeComponent from 'react-cytoscapejs';
 import Modal from 'react-modal';
 const GraphEditor = ({
   elements,
-  isRemovalMode,
-  setIsRemovalMode,
+  modes,
+  setModes,
   graphInfos,
   setGraphInfos,
-  onAddVertex,
   onAddEdge,
   onSetGraphType,
   onClearGraph,
   cyRef,
-  setupCytoscapeEventHandlers,
   editorStyle,
   onDownloadGraphImage,
   setVertexInfo,
@@ -32,11 +30,13 @@ const GraphEditor = ({
     <button onClick={() => onSetGraphType(true)}>Set Directed Graph</button>
     <button onClick={() => onSetGraphType(false)}>Set Undirected Graph</button>
     <button onClick={onClearGraph}>Clear Graph</button>
-    <button onClick={() => setIsRemovalMode(!isRemovalMode)}>
-      {isRemovalMode ? 'Desativar Modo de Remoção' : 'Ativar Modo de Remoção'}
+    <button onClick={() => setModes(prevState => ({ ...prevState, isRemovalMode: !modes.isRemovalMode }))}>
+      {modes.isRemovalMode ? 'Desativar Modo de Remoção' : 'Ativar Modo de Remoção'}
     </button>
 
-    <button onClick={onAddVertex}>Add Vertex</button>
+    <button onClick={() => setModes(prevState => ({ ...prevState, isAddMode: !modes.isAddMode }))}>
+      {modes.isAddMode ? 'Cancelar adicao' : 'Adicionar Vertice'}
+    </button>
     <input type="text" value={graphInfos.edge.u} onChange={e => setGraphInfos({ ...graphInfos, edge: { ...graphInfos.edge, u: e.target.value } })} placeholder="Edge Start" />
     <input type="text" value={graphInfos.edge.v} onChange={e => setGraphInfos({ ...graphInfos, edge: { ...graphInfos.edge, v: e.target.value } })} placeholder="Edge End" />
     <input type="text" value={graphInfos.edge.weight} onChange={e => setGraphInfos({ ...graphInfos, edge: { ...graphInfos.edge, weight: e.target.value } })} placeholder="Weight (optional)" />
@@ -60,7 +60,6 @@ const GraphEditor = ({
         stylesheet={editorStyle.cytoscapeStyle}
         cy={(cy) => {
           cyRef.current = cy;
-          setupCytoscapeEventHandlers(cy);
         }}
       />
     </div>
@@ -89,7 +88,7 @@ const GraphEditor = ({
     </Modal>
     <p>Order of Graph (Number of Vertices): {graphInfos.order}</p>
     <p>Size of Graph (Number of Edges): {graphInfos.size}</p>
-  </div>
+  </div >
 );
 
 export default GraphEditor;

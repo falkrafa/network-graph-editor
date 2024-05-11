@@ -5,7 +5,7 @@ import { graphEditorStyle } from './graphEditor.Style';
 
 const GraphEditorContainer = () => {
   const [elements, setElements] = useState([]);
-  const [isRemovalMode, setIsRemovalMode] = useState(false);
+  const [modes, setModes] = useState({ isRemovalMode: false, isAddMode: false });
   const [graphInfos, setGraphInfos] = useState({ order: 0, size: 0, isDirected: false, vertex: '', edge: { u: '', v: '', weight: '' } });
   const [vertexInfo, setVertexInfo] = useState({ vertex: '', degree: { vertex: '' }, neighborsBetween: { u: '', v: '' } });
   const [pathInfo, setPathInfo] = useState({ source: '', target: '', path: [], length: null });
@@ -19,37 +19,55 @@ const GraphEditorContainer = () => {
     if (!cy) return;
 
     const setupCytoscapeEventHandlers = () => {
-
       cy.on('tap', 'node', (event) => {
-        if (isRemovalMode) {
+        if (modes.isRemovalMode) {
           const nodeId = event.target.id();
           onRemoveVertex(nodeId);
-          setIsRemovalMode(false);
+          setModes({ ...modes, isRemovalMode: false });
         }
       });
 
-
       cy.on('tap', 'edge', async (event) => {
-        if (isRemovalMode) {
+        if (modes.isRemovalMode) {
           const edge = event.target;
           const sourceNodeId = edge.source().id();
           const targetNodeId = edge.target().id();
           const weight = edge.data('label');
           await onRemoveEdge(sourceNodeId, targetNodeId, weight);
-          setIsRemovalMode(false);
+          setModes({ ...modes, isRemovalMode: false });
         }
       });
 
+      cy.on('tap', handleClick);
+    };
+
+    const handleClick = async (event) => {
+      if (!modes.isAddMode || (event.target && event.target !== cy)) return;
+
+      const position = event.position || event.cyPosition;
+      const newNodeId = `${cy.nodes().length + 1}`;
+      const newNode = { data: { id: newNodeId, label: newNodeId }, position };
+
+      try {
+        await onAddVertex(newNodeId);
+        cy.add(newNode);
+      } catch (error) {
+        console.error('Failed to add vertex:', error);
+        alert('Error adding vertex.');
+      } finally {
+        setModes({ ...modes, isAddMode: false });
+      }
     };
 
     setupCytoscapeEventHandlers();
 
-
     return () => {
       cy.removeListener('tap', 'node');
       cy.removeListener('tap', 'edge');
+      cy.removeListener('tap', handleClick);
     };
-  }, [isRemovalMode, cyRef]);
+  }, [modes, cyRef]);
+
 
   const onSetGraphType = async (directed) => {
     await axios.post('http://localhost:5000/set_graph_type', { directed });
@@ -65,24 +83,6 @@ const GraphEditorContainer = () => {
     fetchGraphData();
   };
 
-  const handleAddVertex = async () => {
-    setIsRemovalMode(true);
-    const cy = cyRef.current;
-    if (cy) {
-      const handleClick = async (event) => {
-        if (!event.target || event.target === cy) {
-          const position = event.position || event.cyPosition;
-          const newNodeId = `${cy.nodes().length + 1}`;
-          const newNode = { data: { id: newNodeId, label: newNodeId }, position };
-          await onAddVertex(newNodeId);
-          cy.add(newNode);
-          cy.off('tap', handleClick);
-          setIsRemovalMode(false);
-        }
-      };
-      cy.on('tap', handleClick);
-    }
-  };
 
   const onAddEdge = async () => {
     const payload = graphInfos.edge.weight
@@ -145,30 +145,6 @@ const GraphEditorContainer = () => {
     await axios.post('http://localhost:5000/clear_graph');
     setElements([]);
     setGraphInfos(prevInfos => ({ ...prevInfos, order: 0, size: 0 }));
-  };
-
-  const setupCytoscapeEventHandlers = (cy) => {
-
-    cy.on('tap', 'node', (event) => {
-      if (isRemovalMode) {
-        const nodeId = event.target.id();
-        onRemoveVertex(nodeId);
-        setIsRemovalMode(false);
-      }
-    });
-
-
-    cy.on('tap', 'edge', async (event) => {
-      if (isRemovalMode) {
-        const edge = event.target;
-        console.log(edge)
-        const sourceNodeId = edge.source().id();
-        const targetNodeId = edge.target().id();
-        const weight = edge.data('label');
-        await onRemoveEdge(sourceNodeId, targetNodeId, weight);
-        setIsRemovalMode(false);
-      }
-    });
   };
 
   const onDownloadGraphImage = () => {
@@ -272,15 +248,13 @@ const GraphEditorContainer = () => {
   return (
     <GraphEditor
       elements={elements}
-      isRemovalMode={isRemovalMode}
-      setIsRemovalMode={setIsRemovalMode}
+      modes={modes}
+      setModes={setModes}
       setVertexInfo={setVertexInfo}
       vertexInfo={vertexInfo}
       onDownloadGraphImage={onDownloadGraphImage}
-      setupCytoscapeEventHandlers={setupCytoscapeEventHandlers}
       graphInfos={graphInfos}
       setGraphInfos={setGraphInfos}
-      onAddVertex={handleAddVertex}
       onAddEdge={onAddEdge}
       onSetGraphType={onSetGraphType}
       onClearGraph={onClearGraph}
