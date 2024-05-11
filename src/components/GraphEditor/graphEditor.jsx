@@ -1,6 +1,5 @@
 import CytoscapeComponent from 'react-cytoscapejs';
 import Modal from 'react-modal';
-import GraphModal from '../GraphModal/GraphModal';
 const GraphEditor = ({
   elements,
   isRemovalMode,
@@ -13,8 +12,8 @@ const GraphEditor = ({
   onClearGraph,
   cyRef,
   setupCytoscapeEventHandlers,
-  cyStyles,
-  downloadGraphImage,
+  editorStyle,
+  onDownloadGraphImage,
   setVertexInfo,
   vertexInfo,
   onGetNeighbors,
@@ -37,13 +36,12 @@ const GraphEditor = ({
       {isRemovalMode ? 'Desativar Modo de Remoção' : 'Ativar Modo de Remoção'}
     </button>
 
-    <input type="text" value={graphInfos.vertex} onChange={e => setGraphInfos({ ...graphInfos, vertex: e.target.value })} placeholder="Vertex" />
     <button onClick={onAddVertex}>Add Vertex</button>
     <input type="text" value={graphInfos.edge.u} onChange={e => setGraphInfos({ ...graphInfos, edge: { ...graphInfos.edge, u: e.target.value } })} placeholder="Edge Start" />
     <input type="text" value={graphInfos.edge.v} onChange={e => setGraphInfos({ ...graphInfos, edge: { ...graphInfos.edge, v: e.target.value } })} placeholder="Edge End" />
     <input type="text" value={graphInfos.edge.weight} onChange={e => setGraphInfos({ ...graphInfos, edge: { ...graphInfos.edge, weight: e.target.value } })} placeholder="Weight (optional)" />
     <button onClick={onAddEdge}>Add Edge</button>
-    <button onClick={downloadGraphImage}>Download Graph as Image</button>
+    <button onClick={onDownloadGraphImage}>Download Graph as Image</button>
     <input type="text" value={vertexInfo.vertex} onChange={e => setVertexInfo({ ...vertexInfo, vertex: e.target.value })} placeholder="Vertex ID" />
     <button onClick={() => onGetNeighbors(vertexInfo.vertex)}>Get Neighbors</button>
     <input type="text" value={vertexInfo.degree.vertex} onChange={e => setVertexInfo({ ...vertexInfo, degree: { ...vertexInfo.degree, vertex: e.target.value } })} placeholder="degreeVertex ID" />
@@ -54,19 +52,19 @@ const GraphEditor = ({
     <input type="text" value={pathInfo.source} onChange={e => setPathInfo({ ...pathInfo, source: e.target.value })} placeholder="Source Vertex" />
     <input type="text" value={pathInfo.target} onChange={e => setPathInfo({ ...pathInfo, target: e.target.value })} placeholder="Target Vertex" />
     <button onClick={onGetShortestPath}>Find Shortest Path</button>
-    <div style={{ width: '100%', height: '600px' }}>
+    <div style={{ width: '100%', height: '600px', border: '1px solid #ccc' }}>
       <CytoscapeComponent
         elements={elements}
         style={{ width: '100%', height: '100%' }}
-        layout={{ name: 'cose' }}
-        stylesheet={cyStyles}
+        layout={{ name: 'random' }}
+        stylesheet={editorStyle.cytoscapeStyle}
         cy={(cy) => {
           cyRef.current = cy;
           setupCytoscapeEventHandlers(cy);
         }}
       />
-
     </div>
+
     <button onClick={() => setModalOpen(true)}>Batch Input</button>
     <Modal
       isOpen={modalOpen}
@@ -84,7 +82,7 @@ const GraphEditor = ({
     >
       <textarea value={batchInput} onChange={e => setBatchInput(e.target.value)} />
       <label>
-      <input type='checkbox' checked={graphInfos.isDirected} onChange={() => onSetGraphType(!graphInfos.isDirected)} />
+        <input type='checkbox' checked={graphInfos.isDirected} onChange={() => onSetGraphType(!graphInfos.isDirected)} />
         Directed Graph
       </label>
       <button onClick={onBatchSubmit}>Submit</button>

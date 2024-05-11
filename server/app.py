@@ -27,9 +27,9 @@ def add_vertex():
 
 @app.route('/add_edge', methods=['POST'])
 def add_edge():
-  data = request.json
-  graph.add_edge(data['u'], data['v'], weight=data.get('weight'))
-  return jsonify({'message': 'Edge added'}), 200
+    data = request.json
+    graph.add_edge(data['u'], data['v'], key=data.get('weight'), weight=data.get('weight'))
+    return jsonify({'message': 'Edge added'}), 200
 
 @app.route('/graph_data', methods=['GET'])
 def graph_data():
@@ -57,8 +57,11 @@ def remove_vertex():
 @app.route('/remove_edge', methods=['POST'])
 def remove_edge():
     data = request.json
-    if graph.has_edge(data['u'], data['v']):
-        graph.remove_edge(data['u'], data['v'])
+    u = data['u']
+    v = data['v']
+    key = int(data['weight'])
+    if graph.has_edge(u, v):
+        graph.remove_edge(u, v, key=key)
         return jsonify({'message': 'Edge removed'}), 200
     return jsonify({'message': 'Edge not found'}), 404
 
@@ -126,7 +129,7 @@ def upload_batch_graph():
     for vertex in data['nodes']:
         graph.add_node(vertex['id']) 
     for edge in data['edges']:
-        graph.add_edge(edge['source'], edge['target'], weight=edge['weight'])
+        graph.add_edge(edge['source'], edge['target'], key=edge['weight'], weight=edge['weight'])
     return jsonify({'message': 'Graph uploaded successfully'}), 200
 
 

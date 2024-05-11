@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import GraphEditor from './graphEditor';
-import { graphEditorStyle } from '../../graphEditor.Style';
+import { graphEditorStyle } from './graphEditor.Style';
 
 const GraphEditorContainer = () => {
   const [elements, setElements] = useState([]);
@@ -12,7 +12,7 @@ const GraphEditorContainer = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [batchInput, setBatchInput] = useState('');
   const cyRef = useRef(null);
-  const cyStyles = graphEditorStyle(graphInfos.isDirected);
+  const editorStyle = { cytoscapeStyle: graphEditorStyle.cytoscapeStyle(graphInfos.isDirected), graphEditorStyle: graphEditorStyle.globalStyle };
 
   useEffect(() => {
     const cy = cyRef.current;
@@ -29,14 +29,17 @@ const GraphEditorContainer = () => {
       });
 
 
-      cy.on('tap', 'edge', (event) => {
+      cy.on('tap', 'edge', async (event) => {
         if (isRemovalMode) {
-          const edgeId = event.target.id();
-          const [u, v] = edgeId.split('-');
-          onRemoveEdge(u, v);
+          const edge = event.target;
+          const sourceNodeId = edge.source().id();
+          const targetNodeId = edge.target().id();
+          const weight = edge.data('label');
+          await onRemoveEdge(sourceNodeId, targetNodeId, weight);
           setIsRemovalMode(false);
         }
       });
+
     };
 
     setupCytoscapeEventHandlers();
@@ -57,10 +60,28 @@ const GraphEditorContainer = () => {
     fetchGraphData();
   };
 
-
-  const onAddVertex = async () => {
-    await axios.post('http://localhost:5000/add_vertex', { vertex: graphInfos.vertex });
+  const onAddVertex = async (vertexId) => {
+    await axios.post('http://localhost:5000/add_vertex', { vertex: vertexId });
     fetchGraphData();
+  };
+
+  const handleAddVertex = async () => {
+    setIsRemovalMode(true);
+    const cy = cyRef.current;
+    if (cy) {
+      const handleClick = async (event) => {
+        if (!event.target || event.target === cy) {
+          const position = event.position || event.cyPosition;
+          const newNodeId = `${cy.nodes().length + 1}`;
+          const newNode = { data: { id: newNodeId, label: newNodeId }, position };
+          await onAddVertex(newNodeId);
+          cy.add(newNode);
+          cy.off('tap', handleClick);
+          setIsRemovalMode(false);
+        }
+      };
+      cy.on('tap', handleClick);
+    }
   };
 
   const onAddEdge = async () => {
@@ -85,9 +106,18 @@ const GraphEditorContainer = () => {
     fetchGraphData();
   };
 
-  const onRemoveEdge = async (u, v) => {
-    await axios.post('http://localhost:5000/remove_edge', { u, v });
-    fetchGraphData();
+  const onRemoveEdge = async (sourceNodeId, targetNodeId, weight) => {
+    console.log(sourceNodeId, targetNodeId, weight)
+    try {
+      const response = await axios.post('http://localhost:5000/remove_edge', { u: sourceNodeId, v: targetNodeId, weight: weight });
+      if (response.status === 200) {
+        alert("edge removed successfully")
+        fetchGraphData();
+      }
+    } catch (error) {
+      console.error('Failed to remove edge:', error);
+      alert('Error removing edge.');
+    }
   };
 
   const fetchGraphData = async () => {
@@ -97,10 +127,10 @@ const GraphEditorContainer = () => {
       data: { id: node.id, label: node.id }
     })).concat(edges.map(edge => ({
       data: {
-        id: `${edge.u}-${edge.v}-${edge.key}`,
+        id: `${edge.u}-${edge.v}-${edge.weight ? edge.weight : '0'}`,
         source: edge.u,
         target: edge.v,
-        label: edge.weight ? `${edge.weight}` : '0'
+        label: edge.weight ? `${edge.weight} ` : '0'
       }
     })));
     setElements(formattedElements);
@@ -128,11 +158,14 @@ const GraphEditorContainer = () => {
     });
 
 
-    cy.on('tap', 'edge', (event) => {
+    cy.on('tap', 'edge', async (event) => {
       if (isRemovalMode) {
-        const edgeId = event.target.id();
-        const [u, v] = edgeId.split('-');
-        onRemoveEdge(u, v);
+        const edge = event.target;
+        console.log(edge)
+        const sourceNodeId = edge.source().id();
+        const targetNodeId = edge.target().id();
+        const weight = edge.data('label');
+        await onRemoveEdge(sourceNodeId, targetNodeId, weight);
         setIsRemovalMode(false);
       }
     });
@@ -155,8 +188,8 @@ const GraphEditorContainer = () => {
   const onGetNeighbors = async (vertex) => {
     try {
       const response = await axios.post('http://localhost:5000/get_neighbors', { vertex });
-      alert(`Neighbors: ${response.data.neighbors}\n` +
-        (graphInfos.isDirected ? `In-Neighbors: ${response.data.in_neighbors}\nOut-Neighbors: ${response.data.out_neighbors}` : ''));
+      alert(`Neighbors: ${response.data.neighbors} \n` +
+        (graphInfos.isDirected ? `In - Neighbors: ${response.data.in_neighbors} \nOut - Neighbors: ${response.data.out_neighbors} ` : ''));
     } catch (error) {
       console.error('Failed to get neighbors:', error);
       alert('Error fetching neighbors.');
@@ -167,7 +200,7 @@ const GraphEditorContainer = () => {
     try {
       const response = await axios.post('http://localhost:5000/get_degree', { vertex });
       alert(
-        (graphInfos.isDirected ? `In-Degree: ${response.data.in_degree}\nOut-Degree: ${response.data.out_degree}\n` : `degree: ${response.data.degree}`));
+        (graphInfos.isDirected ? `In - Degree: ${response.data.in_degree} \nOut - Degree: ${response.data.out_degree} \n` : `degree: ${response.data.degree} `));
     } catch (error) {
       console.error('Failed to get degree:', error);
       alert('Error fetching degree.');
@@ -177,7 +210,7 @@ const GraphEditorContainer = () => {
   const onCheckIfNeighbors = async (u, v) => {
     try {
       const response = await axios.post('http://localhost:5000/get_check_if_adjacents', { u, v });
-      alert(`Neighbors between ${u} and ${v}: ${response.data.message}`);
+      alert(`Neighbors between ${u} and ${v}: ${response.data.message} `);
     } catch (error) {
       console.error('Failed to get neighbors between:', error);
       alert('Error fetching neighbors between.');
@@ -190,7 +223,7 @@ const GraphEditorContainer = () => {
         target: pathInfo.target
       });
       setPathInfo(prev => ({ ...prev, path: response.data.path, length: response.data.length }));
-      alert(`Shortest path length: ${response.data.length}\nPath: ${response.data.path.join(' -> ')}`);
+      alert(`Shortest path length: ${response.data.length} \nPath: ${response.data.path.join(' -> ')} `);
     } catch (error) {
       console.error('Failed to get the shortest path:', error);
       alert('Error fetching the shortest path.');
@@ -212,11 +245,11 @@ const GraphEditorContainer = () => {
       if (values.length === 3) {
         edges.push({ source: values[0], target: values[1], weight: parseInt(values[2]) });
       }
-      
+
       else if (values.length === 2) {
         edges.push({ source: values[0], target: values[1], weight: 0 });
       }
-      else{
+      else {
         nodes.push({ id: values[0] });
       }
     });
@@ -229,13 +262,13 @@ const GraphEditorContainer = () => {
         }
       });
       alert('Batch input processed successfully!');
-      fetchGraphData(); 
+      fetchGraphData();
     } catch (error) {
       console.error('Failed to process batch input:', error);
       alert('Error processing batch input.');
     }
   };
-  
+
   return (
     <GraphEditor
       elements={elements}
@@ -243,11 +276,11 @@ const GraphEditorContainer = () => {
       setIsRemovalMode={setIsRemovalMode}
       setVertexInfo={setVertexInfo}
       vertexInfo={vertexInfo}
-      downloadGraphImage={onDownloadGraphImage}
+      onDownloadGraphImage={onDownloadGraphImage}
       setupCytoscapeEventHandlers={setupCytoscapeEventHandlers}
       graphInfos={graphInfos}
       setGraphInfos={setGraphInfos}
-      onAddVertex={onAddVertex}
+      onAddVertex={handleAddVertex}
       onAddEdge={onAddEdge}
       onSetGraphType={onSetGraphType}
       onClearGraph={onClearGraph}
@@ -263,7 +296,7 @@ const GraphEditorContainer = () => {
       setBatchInput={setBatchInput}
       onBatchSubmit={onBatchSubmit}
       cyRef={cyRef}
-      cyStyles={cyStyles}
+      editorStyle={editorStyle}
     />
   );
 };
