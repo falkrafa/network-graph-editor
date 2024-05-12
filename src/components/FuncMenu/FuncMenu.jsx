@@ -3,17 +3,17 @@ import { styled, alpha } from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import EditIcon from '@mui/icons-material/Edit';
 import Divider from '@mui/material/Divider';
-import ArchiveIcon from '@mui/icons-material/Archive';
-import FileCopyIcon from '@mui/icons-material/FileCopy';
+import HubOutlinedIcon from '@mui/icons-material/HubOutlined';
+import DeviceHubOutlinedIcon from '@mui/icons-material/DeviceHubOutlined';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import CloudDownloadOutlinedIcon from '@mui/icons-material/CloudDownloadOutlined';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CommitIcon from '@mui/icons-material/Commit';
-import Typography from '@mui/material/Typography';
-import '../../css/global.css';
-import { Popover } from '@mui/material';
+import DegreePopover from '../Popovers/Degree/degree';
+import AdjacentsPopover from '../Popovers/Adjacents/adjacents';
+import VerifyAdjacencyPopover from '../Popovers/Adjacents/verifyAdjacency';
 const StyledMenu = styled((props) => (
   <Menu
     elevation={0}
@@ -56,26 +56,57 @@ const StyledMenu = styled((props) => (
   },
 }));
 
-export default function CustomizedMenus({ onGetDegree, setVertexInfo, vertexInfo }) {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [degreeAnchorEl, setDegreeAnchorEl] = React.useState(null);
+const CustomizedMenus = ({
+  onGetDegree,
+  setVertexInfo,
+  vertexInfo,
+  onGetNeighbors,
+  onCheckIfNeighbors,
+  onDownloadGraphImage
+}) => {
+  const [anchor, setAnchor] = useState({ menuAnchor: null, degreeAnchor: null, adjacentsAnchor: null, verifyAdjacentsAnchor: null });
 
   const handleMenuClose = () => {
-    setAnchorEl(null);
+    setAnchor({ ...anchor, menuAnchor: null });
   };
-
   const handleDegreeClose = () => {
-    setDegreeAnchorEl(null);
+    setAnchor({ ...anchor, degreeAnchor: null });
+  };
+  const handleAdjacentsClose = () => {
+    setAnchor({ ...anchor, adjacentsAnchor: null });
+  };
+  const handleVerifyAdjacentsClose = () => {
+    setAnchor({ ...anchor, verifyAdjacentsAnchor: null });
   };
 
   const handleDegreeClick = (event) => {
-    setDegreeAnchorEl(event.currentTarget);
+    setAnchor({ ...anchor, degreeAnchor: event.currentTarget });
   };
+  const handleAdjacentsClick = (event) => {
+    setAnchor({ ...anchor, adjacentsAnchor: event.currentTarget });
+  };
+  const handleVerifyAdjacentsClick = (event) => {
+    setAnchor({ ...anchor, verifyAdjacentsAnchor: event.currentTarget });
+  };
+
   const onDegreeSubmit = async (vertex) => {
     await onGetDegree(vertex);
-    setDegreeAnchorEl(null);
-    setAnchorEl(null);
+    setAnchor({ ...anchor, degreeAnchor: null, menuAnchor: null });
     setVertexInfo({ ...vertexInfo, degree: { vertex: '' } });
+  }
+  const onAdjacentsSubmit = async (vertex) => {
+    await onGetNeighbors(vertex);
+    setAnchor({ ...anchor, adjacentsAnchor: null, menuAnchor: null });
+    setVertexInfo({ ...vertexInfo, vertex: '' });
+  }
+  const onCheckIfNeighborsSubmit = async (u, v) => {
+    await onCheckIfNeighbors(u, v);
+    setAnchor({ ...anchor, verifyAdjacentsAnchor: null, menuAnchor: null });
+    setVertexInfo({ ...vertexInfo, neighborsBetween: { u: '', v: '' } });
+  }
+  const onDownload = async () => {
+    await onDownloadGraphImage();
+    setAnchor({ ...anchor, menuAnchor: null });
   }
   return (
     <div>
@@ -83,12 +114,12 @@ export default function CustomizedMenus({ onGetDegree, setVertexInfo, vertexInfo
         id="demo-customized-button"
         color="inherit"
         size="small"
-        aria-controls={anchorEl ? "demo-customized-menu" : undefined}
+        aria-controls={anchor.menuAnchor ? "demo-customized-menu" : undefined}
         aria-haspopup="true"
-        aria-expanded={anchorEl ? "true" : undefined}
+        aria-expanded={anchor.menuAnchor ? "true" : undefined}
         variant="contained"
         disableElevation
-        onClick={(event) => setAnchorEl(event.currentTarget)}
+        onClick={(event) => setAnchor({ ...anchor, menuAnchor: event.currentTarget })}
         endIcon={<KeyboardArrowDownIcon />}
       >
         <SettingsIcon />
@@ -98,50 +129,50 @@ export default function CustomizedMenus({ onGetDegree, setVertexInfo, vertexInfo
         MenuListProps={{
           "aria-labelledby": "demo-customized-button",
         }}
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
+        anchorEl={anchor.menuAnchor}
+        open={Boolean(anchor.menuAnchor)}
         onClose={handleMenuClose}
       >
         <MenuItem onClick={handleDegreeClick} disableRipple>
           <CommitIcon />
           Grau do Vértice
         </MenuItem>
-        <MenuItem onClick={handleMenuClose} disableRipple>
-          <FileCopyIcon />
-          Duplicate
+        <MenuItem onClick={handleAdjacentsClick} disableRipple>
+          <HubOutlinedIcon />
+          Obter Adjacentes
+        </MenuItem>
+        <MenuItem onClick={handleVerifyAdjacentsClick} disableRipple>
+          <DeviceHubOutlinedIcon />
+          Verificar Adjacencia
         </MenuItem>
         <Divider sx={{ my: 0.5 }} />
-        <MenuItem onClick={handleMenuClose} disableRipple>
-          <ArchiveIcon />
-          Archive
-        </MenuItem>
-        <MenuItem onClick={handleMenuClose} disableRipple>
-          <MoreHorizIcon />
-          More
+        <MenuItem onClick={onDownload} disableRipple>
+          <CloudDownloadOutlinedIcon />
+          Baixar Imagem do Grafo
         </MenuItem>
       </StyledMenu>
-
-      <Popover
-        id="degree-popover"
-        open={Boolean(degreeAnchorEl)}
-        anchorEl={degreeAnchorEl}
-        onClose={handleDegreeClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-      >
-        <Typography sx={{ p: 2, display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'start', backgroundColor: '#f2f2f2' }}>
-          <input
-            type="text"
-            value={vertexInfo.degree.vertex}
-            onChange={e => setVertexInfo({ ...vertexInfo, degree: { ...vertexInfo.degree, vertex: e.target.value } })}
-            placeholder="ID do Vértice"
-            className='func-input'
-          />
-          <button className='func-button' onClick={() => onDegreeSubmit(vertexInfo.degree.vertex)}>Obter Grau</button>
-        </Typography>
-      </Popover>
+      <DegreePopover
+        degreeAnchorEl={anchor.degreeAnchor}
+        handleDegreeClose={handleDegreeClose}
+        onDegreeSubmit={onDegreeSubmit}
+        vertexInfo={vertexInfo}
+        setVertexInfo={setVertexInfo}
+      />
+      <AdjacentsPopover
+        adjacentsAnchor={anchor.adjacentsAnchor}
+        handleAdjacentsClose={handleAdjacentsClose}
+        vertexInfo={vertexInfo}
+        setVertexInfo={setVertexInfo}
+        onGetNeighbors={onAdjacentsSubmit}
+      />
+      <VerifyAdjacencyPopover
+        verifyAdjacentsAnchor={anchor.verifyAdjacentsAnchor}
+        handleVerifyAdjacentsClose={handleVerifyAdjacentsClose}
+        vertexInfo={vertexInfo}
+        setVertexInfo={setVertexInfo}
+        onCheckIfNeighbors={onCheckIfNeighborsSubmit}
+      />
     </div>
   );
 }
+export default CustomizedMenus;

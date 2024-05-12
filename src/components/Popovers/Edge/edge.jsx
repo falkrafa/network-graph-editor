@@ -2,7 +2,7 @@ import * as React from 'react';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import '../../css/global.css';
+import '../../../css/global.css'
 export default function Edge({ setGraphInfos, graphInfos, onAddEdge }) {
   const [anchorEl, setAnchorEl] = React.useState(null);
 

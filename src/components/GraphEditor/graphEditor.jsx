@@ -1,7 +1,7 @@
 import CytoscapeComponent from 'react-cytoscapejs';
 import Modal from 'react-modal';
 import CustomizedMenus from '../FuncMenu/FuncMenu';
-import Edge from '../Edge/edge';
+import Edge from '../Popovers/Edge/edge';
 import '../../css/global.css'
 const GraphEditor = ({
   elements,
@@ -50,7 +50,14 @@ const GraphEditor = ({
           {modes.isRemovalMode ? 'Desativar Modo de Remoção' : 'Ativar Modo de Remoção'}
         </button>
         <button className='clear-button' onClick={onClearGraph}>Limpar Grafo</button>
-        <CustomizedMenus onGetDegree={onGetDegree} setVertexInfo={setVertexInfo} vertexInfo={vertexInfo} />
+        <CustomizedMenus
+          onGetDegree={onGetDegree}
+          setVertexInfo={setVertexInfo}
+          vertexInfo={vertexInfo}
+          onGetNeighbors={onGetNeighbors}
+          onCheckIfNeighbors={onCheckIfNeighbors}
+          onDownloadGraphImage={onDownloadGraphImage}
+        />
       </div>
     </div>
     {/* <label>
