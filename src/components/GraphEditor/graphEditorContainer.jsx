@@ -14,6 +14,13 @@ const GraphEditorContainer = () => {
   const cyRef = useRef(null);
   const editorStyle = { cytoscapeStyle: graphEditorStyle.cytoscapeStyle(graphInfos.isDirected) };
   useEffect(() => {
+    window.addEventListener('beforeunload', onClearGraph);
+
+    return () => {
+      window.removeEventListener('beforeunload', onClearGraph);
+    };
+  }, []);
+  useEffect(() => {
     const cy = cyRef.current;
     if (!cy) return;
 
@@ -48,8 +55,8 @@ const GraphEditorContainer = () => {
       const newNode = { data: { id: newNodeId, label: newNodeId }, position };
 
       try {
-        await onAddVertex(newNodeId);
         cy.add(newNode);
+        await onAddVertex(newNodeId);
       } catch (error) {
         console.error('Failed to add vertex:', error);
         alert('Error adding vertex.');
@@ -82,6 +89,10 @@ const GraphEditorContainer = () => {
 
 
   const onAddEdge = async () => {
+    if (graphInfos.edge.u === '' || graphInfos.edge.v === '') {
+      alert("Please fill in the required fields")
+      return;
+    }
     const payload = graphInfos.edge.weight
       ? { ...graphInfos.edge, weight: parseFloat(graphInfos.edge.weight) }
       : graphInfos.edge;

@@ -148,7 +148,8 @@ const GraphEditor = ({
         <div style={{
           width: '100%',
           height: '600px',
-          border: modes.isAddMode ? '1px solid #0073e6' : '1px solid #ccc'
+          border: '2px solid #ccc',
+          borderColor: modes.isRemovalMode ? 'red' : (modes.isAddMode ? '#0073e6' : '#ccc')
         }}>
           <CytoscapeComponent
             elements={elements}
@@ -162,6 +163,7 @@ const GraphEditor = ({
         </div>
       </div>
 
+
       <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(255, 255, 255, 0.7)', padding: '10px', borderRadius: '5px' }}>
         <h3>Ordem e Tamanho:</h3>
         <div>Ordem: {graphInfos.order}</div>
@@ -169,8 +171,8 @@ const GraphEditor = ({
       </div>
     </div>
 
-    {/* <button onClick={() => setModalOpen(true)}>Entrada em lote</button> */}
-    {/* <Modal
+    {/* <button onClick={() => setModalOpen(true)}>Entrada em lote</button>
+    <Modal
       isOpen={modalOpen}
       onRequestClose={() => setModalOpen(false)}
       style={{

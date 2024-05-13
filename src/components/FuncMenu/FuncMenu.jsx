@@ -6,7 +6,6 @@ import MenuItem from '@mui/material/MenuItem';
 import Divider from '@mui/material/Divider';
 import HubOutlinedIcon from '@mui/icons-material/HubOutlined';
 import DeviceHubOutlinedIcon from '@mui/icons-material/DeviceHubOutlined';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import CloudDownloadOutlinedIcon from '@mui/icons-material/CloudDownloadOutlined';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -71,12 +70,16 @@ const CustomizedMenus = ({
   };
   const handleDegreeClose = () => {
     setAnchor({ ...anchor, degreeAnchor: null });
+    setVertexInfo({ ...vertexInfo, degree: { vertex: '' } });
+
   };
   const handleAdjacentsClose = () => {
     setAnchor({ ...anchor, adjacentsAnchor: null });
+    setVertexInfo({ ...vertexInfo, vertex: '' });
   };
   const handleVerifyAdjacentsClose = () => {
     setAnchor({ ...anchor, verifyAdjacentsAnchor: null });
+    setVertexInfo({ ...vertexInfo, neighborsBetween: { u: '', v: '' } });
   };
 
   const handleDegreeClick = (event) => {
