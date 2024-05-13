@@ -34,15 +34,18 @@ const cytoscapeStyle = (isDirected) => [
             'font-size': '16px',
         },
     },
+    {
+        selector: '.highlighted',
+        style: {
+            'background-color': '#ff5722',
+            'border-width': '3px',
+            'border-color': '#ff5722',
+            'line-color': '#ff5722',
+            'target-arrow-color': '#ff5722',
+            'transition-property': 'background-color, line-color, target-arrow-color, border-color',
+            'transition-duration': '0.5s'
+        }
+    }
 ];
 
-// const globalStyle = [
-//     {
-//         container: {
-//             width: '5%',
-//             height: '100%',
-//         },
-//     }
-// ];
-
-export const graphEditorStyle = { cytoscapeStyle};
+export const graphEditorStyle = { cytoscapeStyle };

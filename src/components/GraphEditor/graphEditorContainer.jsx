@@ -13,6 +13,7 @@ const GraphEditorContainer = () => {
   const [batchInput, setBatchInput] = useState('');
   const cyRef = useRef(null);
   const editorStyle = { cytoscapeStyle: graphEditorStyle.cytoscapeStyle(graphInfos.isDirected) };
+
   useEffect(() => {
     window.addEventListener('beforeunload', onClearGraph);
 
@@ -200,19 +201,60 @@ const GraphEditorContainer = () => {
       alert('Error fetching neighbors between.');
     }
   }
-  const onGetShortestPath = async () => {
-    try {
-      const response = await axios.post('http://localhost:5000/shortest_path', {
-        source: pathInfo.source,
-        target: pathInfo.target
-      });
-      setPathInfo(prev => ({ ...prev, path: response.data.path, length: response.data.length }));
-      alert(`Shortest path length: ${response.data.length} \nPath: ${response.data.path.join(' -> ')} `);
-    } catch (error) {
-      console.error('Failed to get the shortest path:', error);
-      alert('Error fetching the shortest path.');
-    }
+
+  const animateShortestPath = (path) => {
+    const cy = cyRef.current;
+    if (!cy) return;
+  
+    cy.elements().removeClass('highlighted');
+  
+    path.forEach((nodeId, index) => {
+      cy.getElementById(nodeId).addClass('highlighted');
+      if (index < path.length - 1) {
+        const nextNodeId = path[index + 1];
+        const edge = cy.edges().filter(`edge[source = "${nodeId}"][target = "${nextNodeId}"], edge[source = "${nextNodeId}"][target = "${nodeId}"]`);
+        edge.addClass('highlighted');
+      }
+    });
+  
+    let i = 0;
+    const highlightNext = () => {
+      if (i < path.length) {
+        const node = cy.getElementById(path[i]);
+        node.addClass('highlighted');
+        if (i > 0) {
+          const prevNodeId = path[i - 1];
+          const edge = cy.edges().filter(`edge[source = "${prevNodeId}"][target = "${path[i]}"], edge[source = "${path[i]}"][target = "${prevNodeId}"]`);
+          edge.addClass('highlighted');
+        }
+        i++;
+        setTimeout(highlightNext, 1000);
+      } else {
+        setTimeout(() => {
+          cy.elements().removeClass('highlighted');
+        }, 5000);
+      }
+    };
+  
+    highlightNext();
   };
+  
+  
+  
+const onGetShortestPath = async () => {
+  try {
+    const response = await axios.post('http://localhost:5000/shortest_path', {
+      source: pathInfo.source,
+      target: pathInfo.target
+    });
+    setPathInfo(prev => ({ ...prev, path: response.data.path, length: response.data.length }));
+    animateShortestPath(response.data.path); // Add this line to trigger animation
+    alert(`Shortest path length: ${response.data.length} \nPath: ${response.data.path.join(' -> ')} `);
+  } catch (error) {
+    console.error('Failed to get the shortest path:', error);
+    alert('Error fetching the shortest path.');
+  }
+};
 
   const onBatchSubmit = async () => {
     onClearGraph();
