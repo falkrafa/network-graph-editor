@@ -57,6 +57,16 @@ const GraphEditor = ({
           onGetNeighbors={onGetNeighbors}
           onCheckIfNeighbors={onCheckIfNeighbors}
           onDownloadGraphImage={onDownloadGraphImage}
+          pathInfo={pathInfo}
+          setPathInfo={setPathInfo}
+          onGetShortestPath={onGetShortestPath}
+          onBatchSubmit={onBatchSubmit}
+          setModalOpen={setModalOpen}
+          modalOpen={modalOpen}
+          batchInput={batchInput}
+          setBatchInput={setBatchInput}
+          onSetGraphType={onSetGraphType}
+          graphInfos={graphInfos}
         />
       </div>
     </div>

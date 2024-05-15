@@ -205,9 +205,9 @@ const GraphEditorContainer = () => {
   const animateShortestPath = (path) => {
     const cy = cyRef.current;
     if (!cy) return;
-  
+
     cy.elements().removeClass('highlighted');
-  
+
     path.forEach((nodeId, index) => {
       cy.getElementById(nodeId).addClass('highlighted');
       if (index < path.length - 1) {
@@ -216,7 +216,7 @@ const GraphEditorContainer = () => {
         edge.addClass('highlighted');
       }
     });
-  
+
     let i = 0;
     const highlightNext = () => {
       if (i < path.length) {
@@ -235,26 +235,26 @@ const GraphEditorContainer = () => {
         }, 5000);
       }
     };
-  
+
     highlightNext();
   };
-  
-  
-  
-const onGetShortestPath = async () => {
-  try {
-    const response = await axios.post('http://localhost:5000/shortest_path', {
-      source: pathInfo.source,
-      target: pathInfo.target
-    });
-    setPathInfo(prev => ({ ...prev, path: response.data.path, length: response.data.length }));
-    animateShortestPath(response.data.path); // Add this line to trigger animation
-    alert(`Shortest path length: ${response.data.length} \nPath: ${response.data.path.join(' -> ')} `);
-  } catch (error) {
-    console.error('Failed to get the shortest path:', error);
-    alert('Error fetching the shortest path.');
-  }
-};
+
+
+
+  const onGetShortestPath = async () => {
+    try {
+      const response = await axios.post('http://localhost:5000/shortest_path', {
+        source: pathInfo.source,
+        target: pathInfo.target
+      });
+      setPathInfo(prev => ({ ...prev, path: response.data.path, length: response.data.length }));
+      animateShortestPath(response.data.path);
+      alert(`Shortest path length: ${response.data.length} \nPath: ${response.data.path.join(' -> ')} `);
+    } catch (error) {
+      console.error('Failed to get the shortest path:', error);
+      alert('Error fetching the shortest path.');
+    }
+  };
 
   const onBatchSubmit = async () => {
     onClearGraph();
@@ -266,7 +266,6 @@ const onGetShortestPath = async () => {
     lines.forEach(line => {
 
       const values = line.trim().split(/\s+/);
-      console.log(values)
 
       if (values.length === 3) {
         edges.push({ source: values[0], target: values[1], weight: parseInt(values[2]) });

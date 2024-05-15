@@ -9,10 +9,14 @@ import DeviceHubOutlinedIcon from '@mui/icons-material/DeviceHubOutlined';
 import CloudDownloadOutlinedIcon from '@mui/icons-material/CloudDownloadOutlined';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import SettingsIcon from '@mui/icons-material/Settings';
+import DataObjectIcon from '@mui/icons-material/DataObject';
 import CommitIcon from '@mui/icons-material/Commit';
 import DegreePopover from '../Popovers/Degree/degree';
 import AdjacentsPopover from '../Popovers/Adjacents/adjacents';
 import VerifyAdjacencyPopover from '../Popovers/Adjacents/verifyAdjacency';
+import ShortestPath from '../Popovers/ShortestPath/shortestPath';
+import RouteIcon from '@mui/icons-material/Route';
+import BatchModal from '../Modal/batchModal';
 const StyledMenu = styled((props) => (
   <Menu
     elevation={0}
@@ -61,9 +65,19 @@ const CustomizedMenus = ({
   vertexInfo,
   onGetNeighbors,
   onCheckIfNeighbors,
-  onDownloadGraphImage
+  onDownloadGraphImage,
+  pathInfo,
+  setPathInfo,
+  onGetShortestPath,
+  onBatchSubmit,
+  setModalOpen,
+  modalOpen,
+  batchInput,
+  setBatchInput,
+  onSetGraphType,
+  graphInfos
 }) => {
-  const [anchor, setAnchor] = useState({ menuAnchor: null, degreeAnchor: null, adjacentsAnchor: null, verifyAdjacentsAnchor: null });
+  const [anchor, setAnchor] = useState({ menuAnchor: null, degreeAnchor: null, adjacentsAnchor: null, verifyAdjacentsAnchor: null, ShortestPathAnchor: null });
 
   const handleMenuClose = () => {
     setAnchor({ ...anchor, menuAnchor: null });
@@ -81,6 +95,10 @@ const CustomizedMenus = ({
     setAnchor({ ...anchor, verifyAdjacentsAnchor: null });
     setVertexInfo({ ...vertexInfo, neighborsBetween: { u: '', v: '' } });
   };
+  const handleShortestPopoverClose = () => {
+    setAnchor({ ...anchor, ShortestPathAnchor: null });
+    setPathInfo({ ...pathInfo, source: '', target: '' });
+  };
 
   const handleDegreeClick = (event) => {
     setAnchor({ ...anchor, degreeAnchor: event.currentTarget });
@@ -90,6 +108,9 @@ const CustomizedMenus = ({
   };
   const handleVerifyAdjacentsClick = (event) => {
     setAnchor({ ...anchor, verifyAdjacentsAnchor: event.currentTarget });
+  };
+  const handleShortestPathClick = (event) => {
+    setAnchor({ ...anchor, ShortestPathAnchor: event.currentTarget });
   };
 
   const onDegreeSubmit = async (vertex) => {
@@ -109,6 +130,17 @@ const CustomizedMenus = ({
   }
   const onDownload = async () => {
     await onDownloadGraphImage();
+    setAnchor({ ...anchor, menuAnchor: null });
+  }
+  const onGetShortestPathSubmit = async () => {
+    await onGetShortestPath();
+    setAnchor({ ...anchor, ShortestPathAnchor: null });
+    setPathInfo({ ...pathInfo, source: '', target: '' });
+  }
+  const onBatchModalSubmit = async () => {
+    await onBatchSubmit();
+    setBatchInput('');
+    setModalOpen(false);
     setAnchor({ ...anchor, menuAnchor: null });
   }
   return (
@@ -148,6 +180,15 @@ const CustomizedMenus = ({
           <DeviceHubOutlinedIcon />
           Verificar Adjacencia
         </MenuItem>
+        <MenuItem onClick={() => setModalOpen(true)} disableRipple>
+          <DataObjectIcon />
+          Adicionar em Lote
+        </MenuItem>
+        <Divider sx={{ my: 0.5 }} />
+        <MenuItem onClick={handleShortestPathClick} disableRipple>
+          <RouteIcon />
+          Obter Menor Caminho
+        </MenuItem>
         <Divider sx={{ my: 0.5 }} />
         <MenuItem onClick={onDownload} disableRipple>
           <CloudDownloadOutlinedIcon />
@@ -174,6 +215,22 @@ const CustomizedMenus = ({
         vertexInfo={vertexInfo}
         setVertexInfo={setVertexInfo}
         onCheckIfNeighbors={onCheckIfNeighborsSubmit}
+      />
+      <ShortestPath
+        ShortestPathAnchor={anchor.ShortestPathAnchor}
+        handleShortestPopoverClose={handleShortestPopoverClose}
+        pathInfo={pathInfo}
+        setPathInfo={setPathInfo}
+        onGetShortestPathSubmit={onGetShortestPathSubmit}
+      />
+      <BatchModal
+        open={modalOpen}
+        handleClose={() => setModalOpen(false)}
+        onBatchModalSubmit={onBatchModalSubmit}
+        batchInput={batchInput}
+        graphInfos={graphInfos}
+        setBatchInput={setBatchInput}
+        onSetGraphType={onSetGraphType}
       />
     </div>
   );

@@ -36,7 +36,7 @@ def get_neighbors(graph, vertex):
         return None, None, None
 
 def check_if_adjacent(graph, u, v):
-    return graph.has_edge(u, v)
+    return graph.has_edge(u, v) or graph.has_edge(v, u)
 
 def get_degree(graph, vertex):
     if vertex in graph:
