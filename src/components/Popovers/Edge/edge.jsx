@@ -1,12 +1,15 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import '../../../css/global.css'
-export default function Edge({ setGraphInfos, graphInfos, onAddEdge }) {
-  const [anchorEl, setAnchorEl] = React.useState(null);
+export default function Edge({ setGraphInfos, graphInfos, onAddEdge, modes, setModes }) {
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const handleClick = (event) => {
+    if (modes.isAddMode || modes.isRemovalMode) {
+      setModes({ isAddMode: false, isRemovalMode: false });
+    }
     setAnchorEl(event.currentTarget);
   };
 

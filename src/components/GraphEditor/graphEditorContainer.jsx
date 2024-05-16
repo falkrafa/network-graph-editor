@@ -7,30 +7,28 @@ const GraphEditorContainer = () => {
   const [elements, setElements] = useState([]);
   const [modes, setModes] = useState({ isRemovalMode: false, isAddMode: false });
   const [graphInfos, setGraphInfos] = useState({ order: 0, size: 0, isDirected: false, vertex: '', edge: { u: '', v: '', weight: '' } });
-  const [vertexInfo, setVertexInfo] = useState({ vertex: '', degree: { vertex: '' }, neighborsBetween: { u: '', v: '' } });
+  const [vertexInfo, setVertexInfo] = useState({ vertex: '', degree: { vertex: '' }, neighborsBetween: { u: '', v: '' }, type: 'number' });
   const [pathInfo, setPathInfo] = useState({ source: '', target: '', path: [], length: null });
+  const [customNodeInfos, setCustomNodeInfos] = useState({ vertex: '', isModalOpen: false, position: null });
   const [modalOpen, setModalOpen] = useState(false);
   const [batchInput, setBatchInput] = useState('');
   const cyRef = useRef(null);
   const editorStyle = { cytoscapeStyle: graphEditorStyle.cytoscapeStyle(graphInfos.isDirected) };
+  const cy = cyRef.current;
 
   useEffect(() => {
-    window.addEventListener('beforeunload', onClearGraph);
+    onClearGraph();
+    setModes({ isRemovalMode: false, isAddMode: false });
+  }, [vertexInfo.type]);
 
-    return () => {
-      window.removeEventListener('beforeunload', onClearGraph);
-    };
-  }, []);
   useEffect(() => {
-    const cy = cyRef.current;
     if (!cy) return;
-
     const setupCytoscapeEventHandlers = () => {
       cy.on('tap', 'node', (event) => {
         if (modes.isRemovalMode) {
           const nodeId = event.target.id();
+          cy.remove(cy.getElementById(nodeId));
           onRemoveVertex(nodeId);
-          setModes({ ...modes, isRemovalMode: false });
         }
       });
 
@@ -41,7 +39,6 @@ const GraphEditorContainer = () => {
           const targetNodeId = edge.target().id();
           const weight = edge.data('label');
           await onRemoveEdge(sourceNodeId, targetNodeId, weight);
-          setModes({ ...modes, isRemovalMode: false });
         }
       });
 
@@ -51,16 +48,35 @@ const GraphEditorContainer = () => {
     const handleClick = async (event) => {
       if (!modes.isAddMode || (event.target && event.target !== cy)) return;
 
-      const position = event.position || event.cyPosition;
-      const newNodeId = `${cy.nodes().length + 1}`;
-      const newNode = { data: { id: newNodeId, label: newNodeId }, position };
+      if (vertexInfo.type === 'number') {
+        const position = event.position || event.cyPosition;
+        const newNodeId = `${cy.nodes().length + 1}`;
+        const newNode = { data: { id: newNodeId, label: newNodeId }, position };
 
-      try {
-        cy.add(newNode);
-        await onAddVertex(newNodeId);
-      } catch (error) {
-        console.error('Failed to add vertex:', error);
-        alert('Error adding vertex.');
+        try {
+          cy.add(newNode);
+          await onAddVertex(newNodeId);
+        } catch (error) {
+          console.error('Failed to add vertex:', error);
+          alert('Error adding vertex.');
+        }
+      }
+      else if (vertexInfo.type === 'letter') {
+        const position = event.position || event.cyPosition;
+        const newNodeId = String.fromCharCode(65 + cy.nodes().length);
+        const newNode = { data: { id: newNodeId, label: newNodeId }, position };
+
+        try {
+          cy.add(newNode);
+          await onAddVertex(newNodeId);
+        } catch (error) {
+          console.error('Failed to add vertex:', error);
+          alert('Error adding vertex.');
+        }
+      }
+      else if (vertexInfo.type === 'custom') {
+        const position = event.position || event.cyPosition;
+        setCustomNodeInfos({ ...customNodeInfos, vertex: '', isModalOpen: true, position: position });
       }
     };
 
@@ -73,7 +89,21 @@ const GraphEditorContainer = () => {
     };
   }, [modes, cyRef]);
 
-
+  const onSubmitCustomNode = async () => {
+    const newNode = { data: { id: customNodeInfos.vertex, label: customNodeInfos.vertex }, position: customNodeInfos.position };
+    console.log(newNode)
+    try {
+      cy.add(newNode);
+      await onAddVertex(customNodeInfos.vertex);
+      setCustomNodeInfos({ ...customNodeInfos, vertex: '', isModalOpen: false, position: null });
+    } catch (error) {
+      console.error('Failed to add vertex:', error);
+      alert('Error adding vertex.');
+    }
+  };
+  const onCloseCustonNode = () => {
+    setCustomNodeInfos({ ...customNodeInfos, vertex: '', isModalOpen: false, position: null });
+  }
   const onSetGraphType = async (directed) => {
     await axios.post('http://localhost:5000/set_graph_type', { directed });
     setGraphInfos(prevInfos => ({
@@ -319,6 +349,10 @@ const GraphEditorContainer = () => {
       batchInput={batchInput}
       setBatchInput={setBatchInput}
       onBatchSubmit={onBatchSubmit}
+      onSubmitCustomNode={onSubmitCustomNode}
+      onCloseCustonNode={onCloseCustonNode}
+      customNodeInfos={customNodeInfos}
+      setCustomNodeInfos={setCustomNodeInfos}
       cyRef={cyRef}
       editorStyle={editorStyle}
     />
