@@ -70,10 +70,8 @@ const CustomizedMenus = ({
   setPathInfo,
   onGetShortestPath,
   onBatchSubmit,
-  setModalOpen,
-  modalOpen,
-  batchInput,
-  setBatchInput,
+  batchModalInfos,
+  setBatchModalInfos,
   onSetGraphType,
   graphInfos
 }) => {
@@ -139,8 +137,7 @@ const CustomizedMenus = ({
   }
   const onBatchModalSubmit = async () => {
     await onBatchSubmit();
-    setBatchInput('');
-    setModalOpen(false);
+    setBatchModalInfos({ ...batchModalInfos, isModalOpen: false, batchInput: '' });
     setAnchor({ ...anchor, menuAnchor: null });
   }
   return (
@@ -180,7 +177,7 @@ const CustomizedMenus = ({
           <DeviceHubOutlinedIcon />
           Verificar Adjacencia
         </MenuItem>
-        <MenuItem onClick={() => setModalOpen(true)} disableRipple>
+        <MenuItem onClick={() => setBatchModalInfos({ ...batchModalInfos, isModalOpen: true })} disableRipple>
           <DataObjectIcon />
           Adicionar em Lote
         </MenuItem>
@@ -224,12 +221,12 @@ const CustomizedMenus = ({
         onGetShortestPathSubmit={onGetShortestPathSubmit}
       />
       <BatchModal
-        open={modalOpen}
-        handleClose={() => setModalOpen(false)}
+        open={batchModalInfos.isModalOpen}
+        handleClose={() => setBatchModalInfos(prev => ({ ...prev, isModalOpen: false, batchInput: '' }))}
         onBatchModalSubmit={onBatchModalSubmit}
-        batchInput={batchInput}
+        batchInput={batchModalInfos.batchInput}
         graphInfos={graphInfos}
-        setBatchInput={setBatchInput}
+        setBatchInput={setBatchModalInfos}
         onSetGraphType={onSetGraphType}
       />
     </div>

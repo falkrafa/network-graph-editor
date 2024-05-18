@@ -8,7 +8,7 @@ install:
 	npm install && pip install -r requirements.txt
 
 run-front:
-	npm run start
+	npm run dev
 
 run-back:
 	python server/app.py

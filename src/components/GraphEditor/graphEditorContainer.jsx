@@ -10,8 +10,7 @@ const GraphEditorContainer = () => {
   const [vertexInfo, setVertexInfo] = useState({ vertex: '', degree: { vertex: '' }, neighborsBetween: { u: '', v: '' }, type: 'number' });
   const [pathInfo, setPathInfo] = useState({ source: '', target: '', path: [], length: null });
   const [customNodeInfos, setCustomNodeInfos] = useState({ vertex: '', isModalOpen: false, position: null });
-  const [modalOpen, setModalOpen] = useState(false);
-  const [batchInput, setBatchInput] = useState('');
+  const [batchModalInfos, setBatchModalInfos] = useState({ isModalOpen: false, batchInput: '' });
   const cyRef = useRef(null);
   const editorStyle = { cytoscapeStyle: graphEditorStyle.cytoscapeStyle(graphInfos.isDirected) };
   const cy = cyRef.current;
@@ -181,6 +180,7 @@ const GraphEditorContainer = () => {
   };
 
   const onClearGraph = async () => {
+    setModes({ isRemovalMode: false, isAddMode: false });
     await axios.post('http://localhost:5000/clear_graph');
     setElements([]);
     setGraphInfos(prevInfos => ({ ...prevInfos, order: 0, size: 0 }));
@@ -288,7 +288,7 @@ const GraphEditorContainer = () => {
 
   const onBatchSubmit = async () => {
     onClearGraph();
-    const lines = batchInput.split('\n');
+    const lines = batchModalInfos.batchInput.split('\n');
 
     const nodes = [];
     const edges = [];
@@ -318,7 +318,6 @@ const GraphEditorContainer = () => {
       });
       alert('Batch input processed successfully!');
       fetchGraphData();
-      setModalOpen(false);
     } catch (error) {
       console.error('Failed to process batch input:', error);
       alert('Error processing batch input.');
@@ -344,10 +343,8 @@ const GraphEditorContainer = () => {
       onGetShortestPath={onGetShortestPath}
       pathInfo={pathInfo}
       setPathInfo={setPathInfo}
-      setModalOpen={setModalOpen}
-      modalOpen={modalOpen}
-      batchInput={batchInput}
-      setBatchInput={setBatchInput}
+      batchModalInfos={batchModalInfos}
+      setBatchModalInfos={setBatchModalInfos}
       onBatchSubmit={onBatchSubmit}
       onSubmitCustomNode={onSubmitCustomNode}
       onCloseCustonNode={onCloseCustonNode}

@@ -10,11 +10,12 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 400,
+  width: 250,
   display: 'flex',
   flexDirection: 'column',
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
+  justifyContent: 'center',
+  alignItems: 'center',
+  bgcolor: '#f2f2f2',
   boxShadow: 24,
   p: 4,
 };
@@ -41,8 +42,9 @@ export default function CustomNode({ open, customNodeInfos, setCustomNodeInfos, 
                 value={customNodeInfos.vertex}
                 onChange={e => setCustomNodeInfos({ ...customNodeInfos, vertex: e.target.value })}
                 placeholder="ID do vértice 1"
+                className='func-input'
               />
-              <button onClick={onSubmitCustomNode}>Adicionar Vertice</button>
+              <button className='func-button' onClick={onSubmitCustomNode}>Adicionar Vertice</button>
             </Typography>
           </Box>
         </Fade>

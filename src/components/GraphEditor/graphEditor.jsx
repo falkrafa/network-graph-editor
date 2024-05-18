@@ -24,10 +24,8 @@ const GraphEditor = ({
   onGetShortestPath,
   pathInfo,
   setPathInfo,
-  modalOpen,
-  setModalOpen,
-  batchInput,
-  setBatchInput,
+  batchModalInfos,
+  setBatchModalInfos,
   onBatchSubmit,
   onSubmitCustomNode,
   onCloseCustonNode,
@@ -48,11 +46,11 @@ const GraphEditor = ({
           <label htmlFor='graphTypeCheckbox'>Grafo Direcionado</label>
         </div>
         <SelectLabels setVertexInfo={setVertexInfo} vertexInfo={vertexInfo} />
-        <button className={modes.isAddMode ? 'add-vertex-buttonCheck' : 'add-vertex-button'} onClick={() => setModes(prevState => ({ ...prevState, isAddMode: !modes.isAddMode }))}>
+        <button className={modes.isAddMode ? 'add-vertex-buttonCheck' : 'add-vertex-button'} onClick={() => setModes(prevState => ({ ...prevState, isAddMode: !modes.isAddMode, isRemovalMode: false }))}>
           {modes.isAddMode ? 'Cancelar Adição' : 'Adicionar Vértices'}
         </button>
         <Edge setGraphInfos={setGraphInfos} graphInfos={graphInfos} modes={modes} onAddEdge={onAddEdge} setModes={setModes} />
-        <button className={modes.isRemovalMode ? 'remove-buttonCheck' : 'remove-button'} onClick={() => setModes(prevState => ({ ...prevState, isRemovalMode: !modes.isRemovalMode }))}>
+        <button className={modes.isRemovalMode ? 'remove-buttonCheck' : 'remove-button'} onClick={() => setModes(prevState => ({ ...prevState, isRemovalMode: !modes.isRemovalMode, isAddMode: false }))}>
           {modes.isRemovalMode ? 'Desativar Modo de Remoção' : 'Ativar Modo de Remoção'}
         </button>
         <button className='clear-button' onClick={onClearGraph}>Limpar Grafo</button>
@@ -67,10 +65,8 @@ const GraphEditor = ({
           setPathInfo={setPathInfo}
           onGetShortestPath={onGetShortestPath}
           onBatchSubmit={onBatchSubmit}
-          setModalOpen={setModalOpen}
-          modalOpen={modalOpen}
-          batchInput={batchInput}
-          setBatchInput={setBatchInput}
+          batchModalInfos={batchModalInfos}
+          setBatchModalInfos={setBatchModalInfos}
           onSetGraphType={onSetGraphType}
           graphInfos={graphInfos}
         />
