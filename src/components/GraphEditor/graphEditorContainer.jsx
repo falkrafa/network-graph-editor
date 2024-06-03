@@ -286,6 +286,26 @@ const GraphEditorContainer = () => {
     }
   };
 
+  const onCheckIfEulerian = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/is_eulerian');
+      alert(`${response.data.message}`);
+    } catch (error) {
+      console.error('Failed to check if Eulerian:', error);
+      alert('Error checking if Eulerian.');
+    }
+  };
+
+  const onCheckIfSemiEulerian = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/is_semi_eulerian');
+      alert(`${response.data.message}`);
+    } catch (error) {
+      console.error('Failed to check if Semi-Eulerian:', error);
+      alert('Error checking if Semi-Eulerian.');
+    }
+  };
+
   const onBatchSubmit = async () => {
     onClearGraph();
     const lines = batchModalInfos.batchInput.split('\n');
@@ -350,6 +370,8 @@ const GraphEditorContainer = () => {
       onCloseCustonNode={onCloseCustonNode}
       customNodeInfos={customNodeInfos}
       setCustomNodeInfos={setCustomNodeInfos}
+      onCheckIfEulerian={onCheckIfEulerian}
+      onCheckIfSemiEulerian={onCheckIfSemiEulerian}
       cyRef={cyRef}
       editorStyle={editorStyle}
     />

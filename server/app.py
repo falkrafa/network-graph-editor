@@ -86,5 +86,19 @@ def upload_batch_graph():
     utils.upload_batch_graph(graph, data.get('nodes'), data['edges'])
     return jsonify({'message': 'Graph uploaded successfully'}), 200
 
+@app.route('/is_eulerian', methods=['GET'])
+def is_eulerian():
+    if utils.is_eulerian(graph):
+        return jsonify({'message': 'Graph is Eulerian'}), 200
+    else:
+        return jsonify({'message': 'Graph is not Eulerian'}), 200
+    
+@app.route('/is_semi_eulerian', methods=['GET'])
+def is_semi_eulerian():
+    if utils.is_semi_eulerian(graph):
+        return jsonify({'message': 'Graph is Semi-Eulerian'}), 200
+    else:
+        return jsonify({'message': 'Graph is not Semi-Eulerian'}), 200
+
 if __name__ == '__main__':
     app.run(debug=True)

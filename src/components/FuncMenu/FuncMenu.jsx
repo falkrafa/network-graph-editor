@@ -73,7 +73,9 @@ const CustomizedMenus = ({
   batchModalInfos,
   setBatchModalInfos,
   onSetGraphType,
-  graphInfos
+  graphInfos,
+  onCheckIfEulerian,
+  onCheckIfSemiEulerian
 }) => {
   const [anchor, setAnchor] = useState({ menuAnchor: null, degreeAnchor: null, adjacentsAnchor: null, verifyAdjacentsAnchor: null, ShortestPathAnchor: null });
 
@@ -140,6 +142,16 @@ const CustomizedMenus = ({
     setBatchModalInfos({ ...batchModalInfos, isModalOpen: false, batchInput: '' });
     setAnchor({ ...anchor, menuAnchor: null });
   }
+
+  const onCheckIfEulerianSubmit = async () => {
+    await onCheckIfEulerian();
+    setAnchor({ ...anchor, menuAnchor: null });
+  }
+
+  const onCheckIfSemiEulerianSubmit = async () => {
+    await onCheckIfSemiEulerian();
+    setAnchor({ ...anchor, menuAnchor: null });
+  }
   return (
     <div>
       <Button
@@ -190,6 +202,14 @@ const CustomizedMenus = ({
         <MenuItem onClick={onDownload} disableRipple>
           <CloudDownloadOutlinedIcon />
           Baixar Imagem do Grafo
+        </MenuItem>
+        <MenuItem onClick={onCheckIfEulerianSubmit} disableRipple>
+          <CloudDownloadOutlinedIcon />
+          Verificar se o grafo é euleriano
+        </MenuItem>
+        <MenuItem onClick={onCheckIfSemiEulerianSubmit} disableRipple>
+          <CloudDownloadOutlinedIcon />
+          Verificar se o grafo é semi euleriano
         </MenuItem>
       </StyledMenu>
       <DegreePopover

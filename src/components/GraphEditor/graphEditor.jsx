@@ -30,7 +30,9 @@ const GraphEditor = ({
   onSubmitCustomNode,
   onCloseCustonNode,
   customNodeInfos,
-  setCustomNodeInfos
+  setCustomNodeInfos,
+  onCheckIfEulerian,
+  onCheckIfSemiEulerian
 }) => (
   <div className='graph-editor-container'>
     <div className='graph-editor-header'>
@@ -69,6 +71,8 @@ const GraphEditor = ({
           setBatchModalInfos={setBatchModalInfos}
           onSetGraphType={onSetGraphType}
           graphInfos={graphInfos}
+          onCheckIfEulerian={onCheckIfEulerian}
+          onCheckIfSemiEulerian={onCheckIfSemiEulerian}
         />
       </div>
     </div>

@@ -93,3 +93,29 @@ def get_neighbours_data(data, graph):
         response_data['out_neighbors'] = out_neighbors
 
     return response_data
+
+def is_eulerian(graph):
+    if isinstance(graph, nx.MultiDiGraph) or isinstance(graph, nx.DiGraph):
+        for vertex in graph.nodes():
+            if graph.in_degree(vertex) != graph.out_degree(vertex):
+                return False
+        return True
+    else:
+        for vertex in graph.nodes():
+            if graph.degree(vertex) % 2 != 0:
+                return False
+        return True
+
+def is_semi_eulerian(graph):
+    if isinstance(graph, nx.MultiDiGraph) or isinstance(graph, nx.DiGraph):
+        odd_degree_count = 0
+        for vertex in graph.nodes():
+            if graph.in_degree(vertex) != graph.out_degree(vertex):
+                odd_degree_count += 1
+        return odd_degree_count == 2
+    else:
+        odd_degree_count = 0
+        for vertex in graph.nodes():
+            if graph.degree(vertex) % 2 != 0:
+                odd_degree_count += 1
+        return odd_degree_count == 2
