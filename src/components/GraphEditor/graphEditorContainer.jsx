@@ -11,6 +11,7 @@ const GraphEditorContainer = () => {
   const [pathInfo, setPathInfo] = useState({ source: '', target: '', path: [], length: null });
   const [customNodeInfos, setCustomNodeInfos] = useState({ vertex: '', isModalOpen: false, position: null });
   const [batchModalInfos, setBatchModalInfos] = useState({ isModalOpen: false, batchInput: '' });
+  const [message, setMessage] = useState('Forneça um grafo para começar!');
   const cyRef = useRef(null);
   const editorStyle = { cytoscapeStyle: graphEditorStyle.cytoscapeStyle(graphInfos.isDirected) };
   const cy = cyRef.current;
@@ -149,7 +150,7 @@ const GraphEditorContainer = () => {
     try {
       const response = await axios.post('http://localhost:5000/remove_edge', { u: sourceNodeId, v: targetNodeId, weight: weight });
       if (response.status === 200) {
-        alert("edge removed successfully")
+        // alert("edge removed successfully")
         fetchGraphData();
       }
     } catch (error) {
@@ -184,6 +185,7 @@ const GraphEditorContainer = () => {
     await axios.post('http://localhost:5000/clear_graph');
     setElements([]);
     setGraphInfos(prevInfos => ({ ...prevInfos, order: 0, size: 0 }));
+    setMessage('Forneça um grafo para começar!');
   };
 
   const onDownloadGraphImage = () => {
@@ -203,7 +205,9 @@ const GraphEditorContainer = () => {
   const onGetNeighbors = async (vertex) => {
     try {
       const response = await axios.post('http://localhost:5000/get_neighbors', { vertex });
-      alert(`Neighbors: ${response.data.neighbors} \n` +
+      // alert(`Neighbors: ${response.data.neighbors} \n` +
+      //   (graphInfos.isDirected ? `In - Neighbors: ${response.data.in_neighbors} \nOut - Neighbors: ${response.data.out_neighbors} ` : ''));
+      setMessage(`Neighbors: ${response.data.neighbors} \n` +
         (graphInfos.isDirected ? `In - Neighbors: ${response.data.in_neighbors} \nOut - Neighbors: ${response.data.out_neighbors} ` : ''));
     } catch (error) {
       console.error('Failed to get neighbors:', error);
@@ -214,8 +218,9 @@ const GraphEditorContainer = () => {
   const onGetDegree = async (vertex) => {
     try {
       const response = await axios.post('http://localhost:5000/get_degree', { vertex });
-      alert(
-        (graphInfos.isDirected ? `In - Degree: ${response.data.in_degree} \nOut - Degree: ${response.data.out_degree} \n` : `degree: ${response.data.degree} `));
+      // alert(
+      //   (graphInfos.isDirected ? `In - Degree: ${response.data.in_degree} \nOut - Degree: ${response.data.out_degree} \n` : `degree: ${response.data.degree} `));
+      setMessage( (graphInfos.isDirected ? `In - Degree: ${response.data.in_degree} \nOut - Degree: ${response.data.out_degree} \n` : `degree: ${response.data.degree} `));
     } catch (error) {
       console.error('Failed to get degree:', error);
       alert('Error fetching degree.');
@@ -224,8 +229,13 @@ const GraphEditorContainer = () => {
 
   const onCheckIfNeighbors = async (u, v) => {
     try {
+      if (u === '' || v === '') {
+        alert("Please fill in the required fields")
+        return;
+      }
       const response = await axios.post('http://localhost:5000/get_check_if_adjacents', { u, v });
-      alert(`Neighbors between ${u} and ${v}: ${response.data.message} `);
+      // alert(`Neighbors between ${u} and ${v}: ${response.data.message} `);
+      setMessage(`Neighbors between ${u} and ${v}: ${response.data.message} `);
     } catch (error) {
       console.error('Failed to get neighbors between:', error);
       alert('Error fetching neighbors between.');
@@ -279,7 +289,8 @@ const GraphEditorContainer = () => {
       });
       setPathInfo(prev => ({ ...prev, path: response.data.path, length: response.data.length }));
       animateShortestPath(response.data.path);
-      alert(`Shortest path length: ${response.data.length} \nPath: ${response.data.path.join(' -> ')} `);
+      // alert(`Shortest path length: ${response.data.length} \nPath: ${response.data.path.join(' -> ')} `);
+      setMessage(`Shortest path length: ${response.data.length} \nPath: ${response.data.path.join(' -> ')} `)
     } catch (error) {
       console.error('Failed to get the shortest path:', error);
       alert('Error fetching the shortest path.');
@@ -289,7 +300,7 @@ const GraphEditorContainer = () => {
   const onCheckIfEulerian = async () => {
     try {
       const response = await axios.get('http://localhost:5000/is_eulerian');
-      alert(`${response.data.message}`);
+      setMessage(response.data.message);
     } catch (error) {
       console.error('Failed to check if Eulerian:', error);
       alert('Error checking if Eulerian.');
@@ -299,7 +310,7 @@ const GraphEditorContainer = () => {
   const onCheckIfSemiEulerian = async () => {
     try {
       const response = await axios.get('http://localhost:5000/is_semi_eulerian');
-      alert(`${response.data.message}`);
+      setMessage(response.data.message);
     } catch (error) {
       console.error('Failed to check if Semi-Eulerian:', error);
       alert('Error checking if Semi-Eulerian.');
@@ -372,6 +383,7 @@ const GraphEditorContainer = () => {
       setCustomNodeInfos={setCustomNodeInfos}
       onCheckIfEulerian={onCheckIfEulerian}
       onCheckIfSemiEulerian={onCheckIfSemiEulerian}
+      message={message}
       cyRef={cyRef}
       editorStyle={editorStyle}
     />

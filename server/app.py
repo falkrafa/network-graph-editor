@@ -59,6 +59,10 @@ def get_neighbors():
 def get_check_if_adjacents():
     data = request.json
     u, v = data.get('u'), data.get('v')
+    
+    if u not in graph or v not in graph:
+        return jsonify({'message': 'One or both vertices do not exist'}), 200
+    
     if utils.check_if_adjacent(graph, u, v):
         return jsonify({'message': 'Vertices are adjacent'}), 200
     else:

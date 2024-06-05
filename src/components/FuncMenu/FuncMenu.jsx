@@ -16,6 +16,8 @@ import AdjacentsPopover from '../Popovers/Adjacents/adjacents';
 import VerifyAdjacencyPopover from '../Popovers/Adjacents/verifyAdjacency';
 import ShortestPath from '../Popovers/ShortestPath/shortestPath';
 import RouteIcon from '@mui/icons-material/Route';
+import AltRouteIcon from '@mui/icons-material/AltRoute';
+import EMobiledataIcon from '@mui/icons-material/EMobiledata';
 import BatchModal from '../Modal/batchModal';
 const StyledMenu = styled((props) => (
   <Menu
@@ -193,6 +195,14 @@ const CustomizedMenus = ({
           <DataObjectIcon />
           Adicionar em Lote
         </MenuItem>
+        <MenuItem onClick={onCheckIfEulerianSubmit} disableRipple>
+          <EMobiledataIcon />
+          Verificar se o grafo é euleriano
+        </MenuItem>
+        <MenuItem onClick={onCheckIfSemiEulerianSubmit} disableRipple>
+          <AltRouteIcon />
+          Verificar se o grafo é semi euleriano
+        </MenuItem>
         <Divider sx={{ my: 0.5 }} />
         <MenuItem onClick={handleShortestPathClick} disableRipple>
           <RouteIcon />
@@ -202,14 +212,6 @@ const CustomizedMenus = ({
         <MenuItem onClick={onDownload} disableRipple>
           <CloudDownloadOutlinedIcon />
           Baixar Imagem do Grafo
-        </MenuItem>
-        <MenuItem onClick={onCheckIfEulerianSubmit} disableRipple>
-          <CloudDownloadOutlinedIcon />
-          Verificar se o grafo é euleriano
-        </MenuItem>
-        <MenuItem onClick={onCheckIfSemiEulerianSubmit} disableRipple>
-          <CloudDownloadOutlinedIcon />
-          Verificar se o grafo é semi euleriano
         </MenuItem>
       </StyledMenu>
       <DegreePopover

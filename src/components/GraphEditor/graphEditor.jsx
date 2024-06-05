@@ -3,6 +3,7 @@ import CustomizedMenus from '../FuncMenu/FuncMenu';
 import Edge from '../Popovers/Edge/edge';
 import CustomNode from '../Modal/customNode';
 import SelectLabels from '../Select/select';
+import IconAlerts from '../Alert/Alert';
 import '../../css/global.css'
 const GraphEditor = ({
   elements,
@@ -32,7 +33,8 @@ const GraphEditor = ({
   customNodeInfos,
   setCustomNodeInfos,
   onCheckIfEulerian,
-  onCheckIfSemiEulerian
+  onCheckIfSemiEulerian,
+  message
 }) => (
   <div className='graph-editor-container'>
     <div className='graph-editor-header'>
@@ -76,6 +78,7 @@ const GraphEditor = ({
         />
       </div>
     </div>
+    <IconAlerts message={message} />
     <div style={{ position: 'relative' }}>
       <div style={{ position: 'relative' }}>
         <div style={{
